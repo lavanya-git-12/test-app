@@ -1,23 +1,20 @@
 steps:
-  # 1. Build the container image
+  # 1. Build
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA', '.']
 
-  # 2. Push the image to Artifact Registry
+  # 2. Push
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA']
 
-  # 3. Update the deployment manifest (Using explicit list format to fix the error)
+  # 3. Update Manifest (Using bash entrypoint to avoid args parsing issues)
   - name: 'ubuntu'
-    args: ['bash', '-c', 'sed -i "s|IMAGE_NAME|us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA|g" k8s/deployment.yaml']
+    entrypoint: 'bash'
+    args: ['-c', 'sed -i "s|IMAGE_NAME|us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA|g" k8s/deployment.yaml']
 
   # 4. Deploy to GKE
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'k8s/deployment.yaml']
-    env:
-      - 'CLOUDSDK_COMPUTE_ZONE=us-central1'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=autopilot-cluster-1'
+    env: ['CLOUDSDK_COMPUTE_ZONE=us-central1', 'CLOUDSDK_CONTAINER_CLUSTER=autopilot-cluster-1']
 
-images: 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA'
-options:
-  logging: CLOUD_LOGGING_ONLY
+images: ['us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA']
