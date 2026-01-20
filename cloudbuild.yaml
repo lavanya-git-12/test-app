@@ -1,5 +1,5 @@
 steps:
-  # 1. Build the container image[ 1 (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE6zyj_0LrMvQ0Ha6c2nvLigF6eMZQDl4EdZj2NjJnA1Ksx5Sogo2cELq6SfQif-NIKbi5FxLCU_PdyT5u2BVG1XCTVmSdxq45M7Ph3Ut_tLRLYnzE9NkuAOsLLgG7O79xFU9Ww0sfcjqNd7YJexfR6WhzTPIkYDEny0D22QW9FIR72md4e9Cdr-ZKfmv9NXKN-v1yLlFbtLIubcwX15ftpxfxnBArlstLc_eMA6VzWwhQgZwhV0A==)][ 6 (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFHVUqj2-kqFFZ_wcCeEl8t9vMf_ShbnTbImbAkmaSdbG7xAdtN1PTrRJNBvsu3Ld4UwfZsN-brtblfIbs9abXV5ZqTgAqdllENE0CIWWixI5XWpj5qb0LwvH8Sreow7LAM4UC-JyR7xfF2_kmxAVZ9kanF)][ 7 (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFuy6Z4nbIyutu81gL3YJpae0PkrwLrSQpPeIdmLj_WEqzhs0CsJv1E6kaNGpQE7BsMldVs25MRfNLYK5jqDwfFJwOI0bn4_3dvNsFa6ie7EusfRTG1i6rpELDUQ3o5F3N1lnew2lsvX6m5FHXF2Oxfx6j_l63MD4DmZ1Tqr-6MkvXIl2des_38vM8IWsTuRA==)][ 10 (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGt6DNYK2QxRvUJLINSy04K_Tq6OhkZGEjy4mAa4UyXmcQUHrC6_V8eEGDdB3tPqyrlXUi1YW_ErCcNpFfM1nv1Tt94xlSJxpm_lIoc90XvkZvBOY1VuonlQar3XCFdsn9PW_KIFA==)][ 12 (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHQLCQcOceO7L_pEKmqyK6pXcZVLv1H_0_EaoP6HbifoZH0EEGdDprKx1PxvdmG7cFaEnO1V4HqnzObB8HZEy3qxZO6IDykw79MctVrZ6xrt4v8vWtZ8NFiX_MxKm2azRuOxrsWvXejfyUKjthTmF-gLAqdu86bWVKhvpYypeTxnfL9DQtITgKZxnBbTN3TVKh8yg==)][ 15 (https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHmgZbeuYKsw9k3ryImXDaClc6oeXcA2rFCqvtlWAmDpJOir8TxONMzoRpBra4ubRnwq1D-Oa62Np0ppdhRkDr6IVRtlYonjp8fL8M45IRVYL3pf1oHnOuN0MbsIWoUm04tJr1wKdY=)]
+  # 1. Build the container image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA', '.']
 
@@ -7,13 +7,9 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA']
 
-  # 3. Update the deployment manifest with the new image
+  # 3. Update the deployment manifest (Using explicit list format to fix the error)
   - name: 'ubuntu'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        sed -i "s|IMAGE_NAME|us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA|g" k8s/deployment.yaml
+    args: ['bash', '-c', 'sed -i "s|IMAGE_NAME|us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA|g" k8s/deployment.yaml']
 
   # 4. Deploy to GKE
   - name: 'gcr.io/cloud-builders/kubectl'
@@ -22,6 +18,6 @@ steps:
       - 'CLOUDSDK_COMPUTE_ZONE=us-central1'
       - 'CLOUDSDK_CONTAINER_CLUSTER=autopilot-cluster-1'
 
-images: 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA' 
+images: 'us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA'
 options:
   logging: CLOUD_LOGGING_ONLY
