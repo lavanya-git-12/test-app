@@ -15,7 +15,7 @@ steps:
   # 4. Deploy to GKE
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'k8s/deployment.yaml']
-    env: ['CLOUDSDK_COMPUTE_ZONE=us-central1', 'CLOUDSDK_CONTAINER_CLUSTER=autopilot-cluster-1']
+    env: ['CLOUDSDK_COMPUTE_ZONE=us-central1', 'CLOUDSDK_CONTAINER_CLUSTER=gke-networking-lab']
 
 images: ['us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/flask-app:$COMMIT_SHA']
 
